@@ -25,6 +25,8 @@ void Setup()
     fruitX = rand() % width;
     fruitY = rand() % height;
     score = 0;
+    tailX.clear();
+    tailY.clear();
 }
 
 void Draw()
@@ -93,11 +95,14 @@ void Input()
 
 void Logic()
 {
-    int prevX = tailX[0];
-    int prevY = tailY[0];
+    int prevX = tailX.empty() ? x : tailX[0];
+    int prevY = tailY.empty() ? y : tailY[0];
     int prev2X, prev2Y;
-    tailX[0] = x;
-    tailY[0] = y;
+    if (!tailX.empty())
+    {
+        tailX[0] = x;
+        tailY[0] = y;
+    }
     for (int i = 1; i < tailX.size(); i++)
     {
         prev2X = tailX[i];
@@ -107,63 +112,65 @@ void Logic()
         prevX = prev2X;
         prevY = prev2Y;
     }
+
     switch (dir)
     {
-        case LEFT:
-            x--;
-            break;
-        case RIGHT:
+    case LEFT:
+        x--;
+        break;
+    case RIGHT:
         x++;
         break;
-        case UP:
+    case UP:
         y--;
         break;
-        case DOWN:
+    case DOWN:
         y++;
         break;
-        default:
+    default:
         break;
     }
 
-if (x >= width)
-    x = 0;
-else if (x < 0)
-    x = width - 1;
-if (y >= height)
-    y = 0;
-else if (y < 0)
-    y = height - 1;
+    if (x >= width)
+        x = 0;
+    else if (x < 0)
+        x = width - 1;
+    if (y >= height)
+        y = 0;
+    else if (y < 0)
+        y = height - 1;
 
-for (int i = 0; i < tailX.size(); i++)
-{
-    if (tailX[i] == x && tailY[i] == y)
+    for (int i = 0; i < tailX.size(); i++)
     {
-        gameOver = true;
-        break;
+        if (tailX[i] == x && tailY[i] == y)
+        {
+            gameOver = true;
+            break;
+        }
     }
-}
 
-if (x == fruitX && y == fruitY)
-{
-    score += 10;
-    fruitX = rand() % width;
-    fruitY = rand() % height;
-    tailX.push_back(0);
-    tailY.push_back(0);
-}
-
+    if (x == fruitX && y == fruitY)
+    {
+        score += 10;
+        fruitX = rand() % width;
+        fruitY = rand() % height;
+        tailX.push_back(0);
+        tailY.push_back(0);
+    }
 }
 
 int main()
 {
-Setup();
-while (!gameOver)
-{
-Draw();
-Input();
-Logic();
-usleep(100000);
-}
-endwin();
-return 0;
+    Setup();
+    while (!gameOver)
+    {
+        Draw();
+        Input();
+        Logic();
+        usleep(100000); // 0.1초 대기
+    }
+    endwin();
+    std::cout << "Game Over" << std::endl;
+    std::cout << "Your Score: " << score << std::endl;
+    return 0;
 }
